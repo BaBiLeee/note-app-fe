@@ -1,56 +1,13 @@
 import React from "react";
 import { IoIosArrowDropleft } from "react-icons/io";
 import { TiPencil } from "react-icons/ti";
-const currentData = [
-    {
-      id: 1,
-      ownerId: "https://via.placeholder.com/80", // Đường dẫn hình ảnh
-      groupId: 1001,
-      type: "Personal",
-      title: "My First Note",
-      createdAt: "2024-01-01 10:00:00",
-      updatedAt: "2024-01-02 15:00:00",
-    },
-    {
-      id: 2,
-      ownerId: "https://via.placeholder.com/80",
-      groupId: 1002,
-      type: "Work",
-      title: "Project Plan",
-      createdAt: "2024-01-05 09:30:00",
-      updatedAt: "2024-01-06 14:45:00",
-    },
-    {
-      id: 3,
-      ownerId: "https://via.placeholder.com/80",
-      groupId: 1003,
-      type: "Study",
-      title: "Django Tutorial",
-      createdAt: "2024-01-10 12:15:00",
-      updatedAt: "2024-01-11 17:30:00",
-    },
-    {
-      id: 4,
-      ownerId: "https://via.placeholder.com/80",
-      groupId: 1004,
-      type: "Personal",
-      title: "Shopping List",
-      createdAt: "2024-01-12 08:00:00",
-      updatedAt: "2024-01-13 16:20:00",
-    },
-    {
-      id: 5,
-      ownerId: "https://via.placeholder.com/80",
-      groupId: 1005,
-      type: "Work",
-      title: "Meeting Notes",
-      createdAt: "2024-01-15 11:00:00",
-      updatedAt: "2024-01-16 18:30:00",
-    },
-  ];
+import { useGetNoteDataQuery } from "../../api/note/noteApi";
+import Cookies from "js-cookie";
   
-
 const NoteDashboard = () => {
+  const token = Cookies.get('token');
+  const {data} = useGetNoteDataQuery({accessToken: token})
+  console.log(data);
   return (
     <div className="h-screen flex flex-col items-center w-full">
       <div className="w-5/6 flex flex-col">
@@ -66,10 +23,7 @@ const NoteDashboard = () => {
                 id
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                owner
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Group id
+                owner id
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Type
@@ -83,10 +37,13 @@ const NoteDashboard = () => {
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Updated at
               </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Action
+              </th>
             </tr>
           </thead>
           <tbody className="bg-white">
-            {currentData.map((note, index) => (
+            {data?.data.map((note, index) => (
               <tr
                 key={index}
                 className="cursor-pointer hover:-translate-y-2 transition duration-150 hover:bg-gray-100"
@@ -95,10 +52,7 @@ const NoteDashboard = () => {
                   {note.id}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                  <img src={note.ownerId} alt="img" className="w-20" />
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  ${note.groupId}
+                  {note.user}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   {note.type}
@@ -107,10 +61,10 @@ const NoteDashboard = () => {
                   {note.title}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  {note.createdAt}
+                  {note.created_at}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  {note.updatedAt}
+                  {note.updated_at}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   <div className="flex space-x-2 items-end">

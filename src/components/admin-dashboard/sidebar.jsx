@@ -2,20 +2,21 @@
 import React, { useState } from 'react';
 import { ImExit } from 'react-icons/im';
 import { IoBookOutline } from 'react-icons/io5';
-import { PiExam } from 'react-icons/pi';
-import { FaRegUser } from "react-icons/fa";
 
+import { FaRegUser } from "react-icons/fa";
+import Cookies from 'js-cookie';
 const Sidebar = ({ selectedTab, setSelectedTab }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
   const handleLogout = () => {
+    Cookies.remove('token', 'admin')
+
     window.location.href = '/login';
   };
 
   const tabs = [
     { icon: FaRegUser, label: 'User' },
     { icon: IoBookOutline, label: 'Note' },
-    { icon: PiExam, label: 'Group' },
   ];
 
   return (

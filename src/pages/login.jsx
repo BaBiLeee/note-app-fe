@@ -4,10 +4,11 @@ import bg from "../public/giphy.gif";
 import { useLoginMutation } from "../api/auth/authApi";
 import { setToken } from "../api/feature/token";
 import { toast } from "react-toastify";
+import Cookies from "js-cookie";
 
 const Login = () => {
-  const [login, {data, isLoading, error }] = useLoginMutation(); 
-  console.log("hee", data);
+  const [login, { data, isLoading, error }] = useLoginMutation();
+  console.log("hee", data?.data.user.admin);
 
   return (
     <div
@@ -34,18 +35,29 @@ const Login = () => {
             setSubmitting(true);
             try {
               const response = await login({
-                email: values.email, 
+                email: values.email,
                 password: values.password,
-              }).unwrap(); 
-              setToken(response.data.accessToken);
+              }).unwrap();
+              // setToken(response.data.accessToken);
               toast.success(response.message);
-              setTimeout(() => {
-                window.location.href = '/note';
-              }, 2000);
+              Cookies.set("token", response.data.accessToken, {
+                expires: 7,
+                secure: true,
+              });
+              Cookies.set("admin", response.data.user.admin);
+              if (response.data.user.admin == true) {
+                setTimeout(() => {
+                  window.location.href = "/dashboard";
+                }, 2000);
+              } else {
+                setTimeout(() => {
+                  window.location.href = "/note";
+                }, 2000);
+              }
             } catch (err) {
               toast.error(err.data.message);
             } finally {
-              setSubmitting(false); 
+              setSubmitting(false);
             }
           }}
         >
@@ -98,7 +110,8 @@ const Login = () => {
                 disabled={isSubmitting || isLoading} // Disable button when submitting or loading
                 className="w-full p-3 bg-blue-500 text-white rounded-lg font-semibold hover:bg-blue-600 transition-colors"
               >
-                {isLoading ? "Signing in..." : "Sign In"} {/* Show loading state */}
+                {isLoading ? "Logging in..." : "Log In"}{" "}
+                {/* Show loading state */}
               </button>
               {error && (
                 <p className="text-red-500 text-sm mt-2 text-center">

@@ -1,9 +1,8 @@
 'use client';
 import React, { useState } from 'react';
-import Sidebar from '../../components/sidebar';
-import UserDashboard from '../../components/user-dashboard';
-import NoteDashboard from '../../components/note-dashboard';
-import GroupDashboard from '../../components/group-dashboard';
+import UserDashboard from '../../components/admin-dashboard/user';
+import Sidebar from '../../components/admin-dashboard/sidebar';
+import NoteDashboard from '../../components/admin-dashboard/note';
 
 const DashBoard = () => {
   const [selectedTab, setSelectedTab] = useState('User');
@@ -14,7 +13,6 @@ const DashBoard = () => {
       <div className="ml-20 p-4 flex-1">
         {selectedTab === 'User' && <UserDashboard />}
         {selectedTab === 'Note' && <NoteDashboard />}
-        {selectedTab === 'Group' && <GroupDashboard />}
       </div>
     </div>
   );
