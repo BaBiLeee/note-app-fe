@@ -31,13 +31,13 @@ export const userApi = createApi({
       }),
     }),
     updateUserProfile: builder.mutation({
-      query: ({ accessToken, userData }) => ({
-        url: '/users/profile',
+      query: ({ accessToken, data, id }) => ({
+        url: `update-user/${id}/`,
         method: 'PATCH',
         headers: {
           Authorization: `Bearer ${accessToken}`, // Ensure the accessToken is being passed correctly
         },
-        body: userData,
+        body: data,
       }),
     }),
     deleteUser: builder.mutation({
@@ -55,6 +55,15 @@ export const userApi = createApi({
         method: 'GET',
       }),
     }),
+    updateStatus: builder.mutation({
+      query:({ accessToken, id}) => ({
+        url: `/user-status/${id}/`,
+        method: 'PATCH',
+        headers: {
+          Authorization: `Bearer ${accessToken}`, // Ensure the accessToken is being passed correctly
+        },
+      })
+    })
   }),
 });
 
@@ -64,5 +73,6 @@ export const {
   useGetAuthDataQuery,
   useUpdateUserProfileMutation,
   useDeleteUserMutation,
-  useGetUserListQuery
+  useGetUserListQuery,
+  useUpdateStatusMutation
 } = userApi;

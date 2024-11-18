@@ -10,6 +10,7 @@ const SidebarUser = ({ selectedTab, setSelectedTab }) => {
     { icon: FaRegUser, label: 'Information' },
     { icon: IoBookOutline, label: 'Note' },
     { icon: PiExam, label: 'Shared with me' },
+    { icon: PiExam, label: 'Shared by me' },
   ];
   const handleClick = () => {
     Cookies.remove('token')

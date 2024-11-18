@@ -4,13 +4,21 @@ import { TiPencil } from "react-icons/ti";
 import {
   useGetAuthDataQuery,
   useDeleteUserMutation,
+  useUpdateUserProfileMutation,
+  useUpdateStatusMutation,
 } from "../../api/user/userApi";
 import Cookies from "js-cookie";
+import { FaSave } from "react-icons/fa";
+import { toast } from "react-toastify";
 
 const UserDashboard = () => {
-  const token = Cookies.get("token");
-  const { data, isLoading } = useGetAuthDataQuery({ accessToken: token });
+  const accessToken = Cookies.get("token");
+  const { data, isLoading } = useGetAuthDataQuery({ accessToken: accessToken });
+  const [updateUser] = useUpdateUserProfileMutation();
   const [deleteUser] = useDeleteUserMutation();
+  const [updateStatus] = useUpdateStatusMutation();
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [showDetailModal, setShowDetailModal] = useState(false);
 
   const [localData, setLocalData] = useState([]); // Dữ liệu người dùng
   const [searchTerm, setSearchTerm] = useState(""); // Giá trị tìm kiếm
@@ -40,10 +48,47 @@ const UserDashboard = () => {
     (currentPage - 1) * rowsPerPage,
     currentPage * rowsPerPage
   );
+  const handleUserClick = (user) => {
+    setSelectedUser(user);
+    setShowDetailModal(true);
+  };
+  const handleDetailInputChange = (e) => {
+    const { name, value } = e.target;
+    setSelectedUser((prev) => ({ ...prev, [name]: value }));
+  };
+  const handleUpdateUser = async () => {
+    if (!selectedUser) return;
+
+    try {
+      // Lấy dữ liệu mới nhất từ selectedNote
+      const updatedData = { ...selectedUser };
+      const updatedUser = await updateUser({
+        accessToken,
+        id: selectedUser.id,
+        data: updatedData, // Sử dụng bản sao để đảm bảo dữ liệu chính xác
+      }).unwrap();
+
+      toast.success("User updated successfully!");
+      window.location.reload();
+      setShowDetailModal(false);
+    } catch (error) {
+      toast.error("Failed to update user. Please try again.");
+      console.error("Error updating user:", error);
+    }
+  };
+
+  const handleStatus = async (id) => {
+    const response = await updateStatus({ id, accessToken: accessToken });
+
+    // Kiểm tra phản hồi API
+    if (response.error) {
+      throw new Error(response.error.data.message || "Failed to update user.");
+    }
+  };
 
   const handleDeleteUser = async (id) => {
     try {
-      const response = await deleteUser({ id, accessToken: token });
+      const response = await deleteUser({ id, accessToken: accessToken });
 
       // Kiểm tra phản hồi API
       if (response.error) {
@@ -143,6 +188,7 @@ const UserDashboard = () => {
                             ? "bg-green-500 text-white"
                             : "bg-gray-800 text-white"
                         }`}
+                        onClick={() => handleStatus(user.id)}
                       >
                         {user.status ? "Active" : "Inactive"}
                       </span>
@@ -150,7 +196,10 @@ const UserDashboard = () => {
                     <td className="px-6 py-4 text-sm">
                       <div className="flex items-center space-x-2">
                         <TiPencil size={20} className="text-blue-500" />
-                        <button className="text-blue-600 hover:underline">
+                        <button
+                          className="text-blue-600 hover:underline"
+                          onClick={() => handleUserClick(user)}
+                        >
                           Edit
                         </button>
                         <button
@@ -244,6 +293,42 @@ const UserDashboard = () => {
                 className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
               >
                 Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showDetailModal && selectedUser && (
+        <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center z-20">
+          <div className="bg-white rounded-lg p-6">
+            <h2 className="text-lg font-bold mb-4">Edit User</h2>
+            <input
+              name="email"
+              value={selectedUser.email}
+              onChange={handleDetailInputChange}
+              placeholder="Email"
+              className="w-full p-2 mb-3 border rounded"
+            />
+            <input
+              name="fullname"
+              value={selectedUser.fullname}
+              onChange={handleDetailInputChange}
+              placeholder="FullName"
+              className="w-full p-2 mb-3 border rounded"
+            />
+            <div className="flex justify-end gap-4">
+              <button
+                onClick={handleUpdateUser}
+                className="px-1 py-2  text-blue-800 rounded hover:text-black"
+              >
+                <FaSave />
+              </button>
+              <button
+                onClick={() => setShowDetailModal(false)}
+                className="px-4 py-2 bg-gray-300 rounded"
+              >
+                Cancel
               </button>
             </div>
           </div>

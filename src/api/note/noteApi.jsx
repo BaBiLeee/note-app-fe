@@ -16,6 +16,15 @@ export const noteApi = createApi({
         },
       }),
     }),
+    getNoteSharedByMeData: builder.query({
+      query: ({ accessToken }) => ({
+        url: 'get-share-note/',
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }),
+    }),
     createNote: builder.mutation({
       query: ({accessToken, data}) => ({
         url: 'note/',
@@ -35,6 +44,15 @@ export const noteApi = createApi({
         },
       }),
     }),
+    manageShare: builder.query({
+      query: ({ accessToken, id }) => ({
+        url: `manage-share/${id}`,
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }),
+    }),
     updateNote: builder.mutation({
       query: ({ accessToken, data, noteId }) => ({
         url: `update-note/${noteId}/`,
@@ -46,8 +64,8 @@ export const noteApi = createApi({
       }),
     }),
     deleteNote: builder.mutation({
-      query: ({ accessToken, noteId }) => ({
-        url: `delete-note/${noteId}/`,
+      query: ({ accessToken, id }) => ({
+        url: `delete-note/${id}/`,
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${accessToken}`,
@@ -73,5 +91,7 @@ export const {
   useUpdateNoteMutation,
   useCreateNoteMutation,
   useDeleteNoteMutation,
-  useShareNoteMutation
+  useShareNoteMutation,
+  useGetNoteSharedByMeDataQuery,
+  useManageShareQuery
 } = noteApi;

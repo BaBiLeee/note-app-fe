@@ -10,6 +10,7 @@ import Cookies from "js-cookie";
 import Infor from "../../components/user-dashboard/information";
 import { useGetUserListQuery } from "../../api/user/userApi";
 import SharedNote from "../../components/user-dashboard/shared";
+import SharedNoteByUser from "../../components/user-dashboard/shared";
 
 const noteTypes = ["Personal", "Work", "Project", "Reminder"];
 
@@ -19,7 +20,6 @@ const Note = () => {
   const { data } = useGetNoteDataQuery({ accessToken: token });
   const { data: userList= []} = useGetUserListQuery();
   console.log(userList);
-  const { isShowing, toggle } = useModal();
 
   const [notes, setNotes] = useState(
     noteTypes.reduce((acc, type) => {
@@ -48,7 +48,7 @@ const Note = () => {
             <NoteUser notes={notes} setNotes={setNotes} userList={userList}/>
           )}
           {selectedTab === "Shared with me" && <SharedNoteUser userList={userList}/>}
-          {selectedTab === "Shared by me" && <SharedNote />}
+          {selectedTab === "Shared by me" && <SharedNoteByUser />}
 
         </div>
       </div>

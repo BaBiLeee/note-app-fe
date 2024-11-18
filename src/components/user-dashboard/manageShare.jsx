@@ -7,7 +7,7 @@ import { FaSave, FaShare } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
 import { toast } from "react-toastify";
 const noteTypes = ["Personal", "Work", "Project", "Reminder"];
-const NoteDashboard = () => {
+const ManageShare = () => {
   const accessToken = Cookies.get("token");
   const [deleteNote] = useDeleteNoteMutation();
   const { data, isLoading } = useGetNoteDataQuery({ accessToken: accessToken });
@@ -98,44 +98,6 @@ const handleNoteClick = (note) => {
   return (
     <div className="h-screen flex flex-col items-center w-full bg-gray-50">
       <div className="w-5/6 flex flex-col mt-10">
-        {/* Search bar */}
-        <div className="relative mb-10 w-60">
-          <input
-            type="text"
-            placeholder="Search note by title..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="border border-gray-300 p-2 pl-10 rounded-md w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth="1.5"
-            stroke="currentColor"
-            className="absolute left-3 top-3 w-5 h-5 text-gray-400"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M15.75 15.75L20.25 20.25"
-            />
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M10.5 4.5a6 6 0 100 12 6 6 0 000-12z"
-            />
-          </svg>
-        </div>
-        {/* Success Message */}
-        {successMessage && (
-          <div className="mb-5 text-green-600 text-sm">{successMessage}</div>
-        )}
-        {/* Error Message */}
-        {errorMessage && (
-          <div className="mb-5 text-red-600 text-sm">{errorMessage}</div>
-        )}
-
         {/* Table */}
         <div className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
           {isLoading ? (
@@ -155,11 +117,11 @@ const handleNoteClick = (note) => {
                 <tr>
                   {[
                     "ID",
-                    "Owner ID",
-                    "Type",
-                    "Title",
-                    "Created At",
-                    "Updated At",
+                    "Note ID",
+                    "Permission",
+                    "Shared By ID",
+                    "Shared User ID",
+                    "Shared at",
                     "Action",
                   ].map((header) => (
                     <th
@@ -355,4 +317,4 @@ const handleNoteClick = (note) => {
   );
 };
 
-export default NoteDashboard;
+export default ManageShare;
