@@ -1,7 +1,7 @@
 import React from "react";
 import { Formik } from "formik";
 import bg from "../public/giphy.gif";
-import { useRegisterMutation } from "../api/auth/authApi";
+import { useRegisterMutation } from "../api/user/userApi";
 import { toast } from "react-toastify";
 
 const Signup = () => {

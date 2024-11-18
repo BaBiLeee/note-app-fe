@@ -1,5 +1,5 @@
 import React from "react";
-import { useGetAuthDataQuery } from "../../api/auth/authApi";
+import { useGetAuthDataQuery } from "../../api/user/userApi";
 import Cookies from "js-cookie";
 const Infor = () => {
     const token = Cookies.get('token');
@@ -33,7 +33,10 @@ const Infor = () => {
             />
             <h1 className="font-bold text-sm">Phone:</h1>
             <input
-              placeholder="Enter phone number"
+              type="text"
+              id="phone"
+              name="phone"
+              value="hallo"
               // {...register('phoneNumber')}
               className="w-full p-2 rounded-md border border-black mb-4"
             />

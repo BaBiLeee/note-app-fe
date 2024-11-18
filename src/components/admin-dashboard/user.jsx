@@ -1,128 +1,254 @@
-import React from "react";
-import { IoIosArrowDropleft } from "react-icons/io";
+import React, { useState, useEffect } from "react";
+import { IoIosArrowDropleft, IoIosArrowDropright } from "react-icons/io";
 import { TiPencil } from "react-icons/ti";
-import { useGetAuthDataQuery } from "../../api/auth/authApi";
+import {
+  useGetAuthDataQuery,
+  useDeleteUserMutation,
+} from "../../api/user/userApi";
 import Cookies from "js-cookie";
 
 const UserDashboard = () => {
   const token = Cookies.get("token");
-  const { data } = useGetAuthDataQuery({ accessToken: token });
-  console.log(data);
+  const { data, isLoading } = useGetAuthDataQuery({ accessToken: token });
+  const [deleteUser] = useDeleteUserMutation();
+
+  const [localData, setLocalData] = useState([]); // Dữ liệu người dùng
+  const [searchTerm, setSearchTerm] = useState(""); // Giá trị tìm kiếm
+  const [currentPage, setCurrentPage] = useState(1); // Trang hiện tại
+  const [successMessage, setSuccessMessage] = useState(""); // Thông báo xóa thành công
+  const [errorMessage, setErrorMessage] = useState(""); // Thông báo xóa thành công
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false); // Điều khiển hiển thị hộp xác nhận
+  const [selectedUserId, setSelectedUserId] = useState(null); // Lưu id người dùng cần xóa
+
+  const rowsPerPage = 6; // Số dòng mỗi trang
+
+  // Cập nhật dữ liệu local khi `data` thay đổi
+  useEffect(() => {
+    if (data?.data) setLocalData(data.data);
+  }, [data]);
+
+  // Lọc danh sách người dùng dựa trên tìm kiếm
+  const filteredUsers = localData.filter((user) =>
+    user.fullname.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  // Tính tổng số trang
+  const totalPages = Math.ceil(filteredUsers.length / rowsPerPage);
+
+  // Lấy dữ liệu cho trang hiện tại
+  const currentUsers = filteredUsers.slice(
+    (currentPage - 1) * rowsPerPage,
+    currentPage * rowsPerPage
+  );
+
+  const handleDeleteUser = async (id) => {
+    try {
+      const response = await deleteUser({ id, accessToken: token });
+
+      // Kiểm tra phản hồi API
+      if (response.error) {
+        throw new Error(
+          response.error.data.message || "Failed to delete user."
+        );
+      }
+
+      // Xóa thành công
+      setLocalData((prevData) => prevData.filter((user) => user.id !== id));
+      setShowDeleteConfirm(false); // Tắt modal
+      setSuccessMessage("User deleted successfully!"); // Hiển thị thông báo thành công
+      setTimeout(() => setSuccessMessage(""), 3000);
+    } catch (error) {
+      console.error("Error deleting user:", error);
+      setErrorMessage(error.message || "Failed to connect to the server."); // Thông báo lỗi
+      setTimeout(() => setErrorMessage(""), 3000); // Xóa thông báo lỗi sau 3 giây
+    }
+  };
+
   return (
-    <div className="h-screen flex flex-col items-center w-full">
-      <div className="w-5/6 flex flex-col">
-        <input
-          placeholder="Search user by name..."
-          className="border border-gray-200 p-2 rounded-md w-60 mb-10"
-          // onKeyDown={handleKeyPress}
-        />
-        <table className="min-w-full bg-white border border-gray-200 rounded-lg">
-          <thead>
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                id
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Full name
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Email
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Status
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-white">
-            {data?.data.map((user, index) => (
-              <tr
-                key={index}
-                className="cursor-pointer hover:-translate-y-2 transition duration-150 hover:bg-gray-100"
-              >
-                <td className="px-6 py-4 whitespace-nowrap text-xl font-bold text-gray-900">
-                  {user.id}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                  {user.fullname}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {user.email}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <span
-                    className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                      user.status === true
-                        ? "bg-green-500 text-white"
-                        : "bg-gray-800 text-white"
+    <div className="h-screen flex flex-col items-center w-full bg-gray-50">
+      <div className="w-5/6 flex flex-col mt-10">
+        {/* Search Input */}
+        <div className="relative mb-10 w-60">
+          <input
+            type="text"
+            placeholder="Search user by name..."
+            className="border border-gray-300 p-2 pl-10 rounded-md w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+            value={searchTerm}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              setCurrentPage(1); // Reset về trang đầu khi tìm kiếm
+            }}
+          />
+        </div>
+
+        {/* Success Message */}
+        {successMessage && (
+          <div className="mb-5 text-green-600 text-sm">{successMessage}</div>
+        )}
+        {/* Error Message */}
+        {errorMessage && (
+          <div className="mb-5 text-red-600 text-sm">{errorMessage}</div>
+        )}
+
+        {/* User Table */}
+        <div className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+          {isLoading ? (
+            <div className="flex justify-center items-center h-32">
+              <div className="w-8 h-8 border-4 border-blue-400 border-dashed rounded-full animate-spin"></div>
+              <span className="ml-3 text-gray-500 text-sm">
+                Loading users...
+              </span>
+            </div>
+          ) : currentUsers.length === 0 ? (
+            <div className="text-center py-10">
+              <p className="text-gray-500 text-lg">No users found.</p>
+            </div>
+          ) : (
+            <table className="min-w-full bg-white">
+              <thead className="bg-gray-100">
+                <tr>
+                  {["ID", "Full Name", "Email", "Status", "Actions"].map(
+                    (header) => (
+                      <th
+                        key={header}
+                        className="px-6 py-3 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider"
+                      >
+                        {header}
+                      </th>
+                    )
+                  )}
+                </tr>
+              </thead>
+              <tbody>
+                {currentUsers.map((user, index) => (
+                  <tr
+                    key={index}
+                    className={`cursor-pointer hover:bg-gray-50 ${
+                      index % 2 === 0 ? "bg-white" : "bg-gray-50"
                     }`}
                   >
-                    {user.status === true ? "Active" : "Inactive"}
-                  </span>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  <div className="flex space-x-2 items-end">
-                    <TiPencil size={20} />
-                    <a
-                      // onClick={() => handleClick(user.id)}
-                      className="text-indigo-600 hover:text-indigo-900 cursor-pointer"
-                    >
-                      Edit
-                    </a>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        <div className="flex justify-center items-center my-5">
-          <button
-            // disabled={currentPage === 1}
-            // onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-            className="mx-2"
-          >
-            <IoIosArrowDropleft
-              size={30}
-              className="cursor-pointer rounded-full hover:bg-gray-200"
-            />
-          </button>
-
-          {/* <div className="flex space-x-2">
-            {paginationNumbers().map((page, index) =>
-              typeof page === "number" ? (
-                <button
-                  key={index}
-                  onClick={() => setCurrentPage(page)}
-                  className={`px-3 py-1 ${
-                    currentPage === page ? "text-purple-900 underline" : ""
-                  }`}
-                >
-                  {page}
-                </button>
-              ) : (
-                <span key={index} className="px-3 py-1">
-                  ...
-                </span>
-              )
-            )}
-          </div> */}
-
-          {/* <button
-            disabled={currentPage === totalPages}
-            onClick={() =>
-              setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-            }
-            className="mx-2"
-          >
-            <IoIosArrowDropright
-              size={30}
-              className="cursor-pointer rounded-full hover:bg-gray-200"
-            />
-          </button> */}
+                    <td className="px-6 py-4 text-sm font-medium text-gray-800">
+                      {user.id}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-600">
+                      {user.fullname}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-600">
+                      {user.email}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span
+                        className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                          user.status
+                            ? "bg-green-500 text-white"
+                            : "bg-gray-800 text-white"
+                        }`}
+                      >
+                        {user.status ? "Active" : "Inactive"}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-sm">
+                      <div className="flex items-center space-x-2">
+                        <TiPencil size={20} className="text-blue-500" />
+                        <button className="text-blue-600 hover:underline">
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => {
+                            setSelectedUserId(user.id);
+                            setShowDeleteConfirm(true);
+                          }}
+                          className="text-red-600 hover:underline"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
+
+        {/* Pagination */}
+        {filteredUsers.length > rowsPerPage && (
+          <div className="flex justify-center items-center my-5 space-x-2">
+            <button
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+              className={`${
+                currentPage === 1 ? "cursor-not-allowed opacity-50" : ""
+              }`}
+            >
+              <IoIosArrowDropleft
+                size={30}
+                className="cursor-pointer rounded-full hover:bg-gray-200"
+              />
+            </button>
+
+            {/* Pagination Buttons */}
+            <div className="flex items-center space-x-1">
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                (page) => (
+                  <button
+                    key={page}
+                    onClick={() => setCurrentPage(page)}
+                    className={`${
+                      currentPage === page
+                        ? "bg-blue-500 text-white"
+                        : "bg-gray-200 text-gray-800"
+                    } px-3 py-1 rounded-full hover:bg-blue-400 hover:text-white`}
+                  >
+                    {page}
+                  </button>
+                )
+              )}
+            </div>
+
+            <button
+              onClick={() =>
+                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+              }
+              disabled={currentPage === totalPages}
+              className={`${
+                currentPage === totalPages
+                  ? "cursor-not-allowed opacity-50"
+                  : ""
+              }`}
+            >
+              <IoIosArrowDropright
+                size={30}
+                className="cursor-pointer rounded-full hover:bg-gray-200"
+              />
+            </button>
+          </div>
+        )}
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 z-50 bg-gray-800 bg-opacity-50 flex justify-center items-center">
+          <div className="bg-white p-6 rounded-lg shadow-lg">
+            <p className="text-lg font-semibold">Confirm Delete</p>
+            <p className="text-gray-600">Are you sure you want to delete?</p>
+            <div className="mt-4 flex justify-end space-x-2">
+              <button
+                onClick={() => setShowDeleteConfirm(false)}
+                className="px-4 py-2 bg-gray-300 rounded-md hover:bg-gray-400"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => handleDeleteUser(selectedUserId)}
+                className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

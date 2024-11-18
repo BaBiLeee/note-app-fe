@@ -1,8 +1,8 @@
 import React from 'react';
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
-export const authApi = createApi({
-  reducerPath: 'authApi',
+export const userApi = createApi({
+  reducerPath: 'userApi',
   baseQuery: fetchBaseQuery({
     baseUrl: process.env.REACT_APP_API_ENDPOINT, 
   }),
@@ -40,6 +40,21 @@ export const authApi = createApi({
         body: userData,
       }),
     }),
+    deleteUser: builder.mutation({
+      query: ({ accessToken, id }) => ({
+        url: `/delete-user/${id}/`,
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${accessToken}`, // Ensure the accessToken is being passed correctly
+        },
+      }),
+    }),
+    getUserList: builder.query({
+      query: () => ({
+        url: 'userList/',
+        method: 'GET',
+      }),
+    }),
   }),
 });
 
@@ -48,4 +63,6 @@ export const {
   useLoginMutation,
   useGetAuthDataQuery,
   useUpdateUserProfileMutation,
-} = authApi;
+  useDeleteUserMutation,
+  useGetUserListQuery
+} = userApi;

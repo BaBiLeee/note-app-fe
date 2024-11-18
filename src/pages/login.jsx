@@ -1,8 +1,7 @@
 import React, { useEffect } from "react";
 import { Formik } from "formik";
 import bg from "../public/giphy.gif";
-import { useLoginMutation } from "../api/auth/authApi";
-import { setToken } from "../api/feature/token";
+import { useLoginMutation } from "../api/user/userApi";
 import { toast } from "react-toastify";
 import Cookies from "js-cookie";
 
