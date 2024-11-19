@@ -156,13 +156,7 @@ const SharedNoteByUser = ({userList}) => {
   return (
     <DragDropContext onDragEnd={onDragEnd}>
     <div className="col-span-4 grid grid-cols-4 gap-6 px-4">
-        <button
-        className={`fixed bottom-10 right-12 z-10 p-3 rounded-full 
-            bg-gray-500 text-white hover:bg-blue-600 hover:scale-105
-             transition-all duration-500 ease-in-out`}
-      >
-        <CgAdd size={30}/>
-      </button>
+
 
       {/* Modal for viewing and editing note details */}
       {showDetailModal && selectedNote && (
@@ -335,7 +329,7 @@ const SharedNoteByUser = ({userList}) => {
                       <div className="text-gray-500 text-sm mb-2">
                         {note.created_at}
                       </div>
-                      <div className="text-gray-700 line-clamp-6 font-notefont text-lg">
+                      <div className="text-gray-700 text-lg">
                         {note.content}
                       </div>
                     </div>

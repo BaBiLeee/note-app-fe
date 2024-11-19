@@ -1,6 +1,4 @@
 import React, { useState, useEffect } from "react";
-import Modal from "../../components/modal";
-import useModal from "../../hooks/useModal";
 import { useGetNoteDataQuery } from "../../api/note/noteApi";
 import { DragDropContext } from "react-beautiful-dnd";
 import SidebarUser from "../../components/user-dashboard/sidebar";
@@ -11,6 +9,7 @@ import Infor from "../../components/user-dashboard/information";
 import { useGetUserListQuery } from "../../api/user/userApi";
 import SharedNote from "../../components/user-dashboard/shared";
 import SharedNoteByUser from "../../components/user-dashboard/shared";
+import ManageShare from "../../components/user-dashboard/manageShare";
 
 const noteTypes = ["Personal", "Work", "Project", "Reminder"];
 
@@ -40,7 +39,7 @@ const Note = () => {
 
   return (
 
-      <div className="grid grid-cols-5 h-screen bg-gray-50 p-6">
+      <div className="grid grid-cols-5 bg-gray-50 p-6">
         <SidebarUser selectedTab={selectedTab} setSelectedTab={setSelectedTab} />
         <div className="col-span-4">
           {selectedTab === "Information" && <Infor />}
@@ -48,7 +47,8 @@ const Note = () => {
             <NoteUser notes={notes} setNotes={setNotes} userList={userList}/>
           )}
           {selectedTab === "Shared with me" && <SharedNoteUser userList={userList}/>}
-          {selectedTab === "Shared by me" && <SharedNoteByUser />}
+          {selectedTab === "Shared by me" && <SharedNoteByUser userList={userList}/>}
+          {selectedTab === "Shared manage" && <ManageShare/>}
 
         </div>
       </div>

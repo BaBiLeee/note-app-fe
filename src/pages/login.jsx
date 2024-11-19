@@ -44,6 +44,7 @@ const Login = () => {
                 secure: true,
               });
               Cookies.set("admin", response.data.user.admin);
+              Cookies.set("id", response.data.user.id);
               if (response.data.user.admin == true) {
                 setTimeout(() => {
                   window.location.href = "/dashboard";

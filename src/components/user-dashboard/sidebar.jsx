@@ -5,12 +5,19 @@ import { IoBookOutline } from 'react-icons/io5';
 import { PiExam } from 'react-icons/pi';
 import { FaRegUser } from "react-icons/fa";
 import Cookies from 'js-cookie';
+import { useGetAuthDataQuery } from '../../api/user/userApi';
 const SidebarUser = ({ selectedTab, setSelectedTab }) => {
+  const accessToken = Cookies.get('token')
+  const admin = Cookies.get('admin')
+  const {data} = useGetAuthDataQuery({accessToken: accessToken})
+  console.log("lmeoooo",data);
   const tabs = [
     { icon: FaRegUser, label: 'Information' },
     { icon: IoBookOutline, label: 'Note' },
     { icon: PiExam, label: 'Shared with me' },
     { icon: PiExam, label: 'Shared by me' },
+    { icon: PiExam, label: 'Shared manage' },
+
   ];
   const handleClick = () => {
     Cookies.remove('token')
@@ -18,11 +25,11 @@ const SidebarUser = ({ selectedTab, setSelectedTab }) => {
   return (
     <div className="col-span-1 flex flex-col items-center bg-white shadow-lg rounded-xl p-4 h-full">
       <img
-        className="rounded-full w-[150px] border-gray-900 border-2 border-spacing-2 border-dotted"
-        src="https://picsum.photos/200"
+        className="rounded-full w-[150px] h-[150px] object-cover border-gray-900 border-2 border-spacing-2 border-dotted"
+        src={"https://res.cloudinary.com/dd8yzbulm/" + data?.data[0].avatar}
         alt="avatar"
       />
-      <div className="font-bold text-2xl mt-4">Le Truong</div>
+      <div className="font-bold text-2xl mt-4">{admin ? "Super Admin": data?.data[0].fullname}</div>
       <hr className="w-full h-px my-4 bg-gray-200 border-0 dark:bg-gray-700" />
       
       <div className="flex flex-col items-center w-full">

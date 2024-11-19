@@ -462,14 +462,18 @@ const NoteUser = ({ notes, setNotes, userList }) => {
                   >
                     {(provided) => (
                       <div
-                      className={`relative ${note.color} p-6 rounded-lg shadow-md border border-gray-200 hover:shadow-xl  transition-transform duration-200 ease-in-out mb-4`}
+                      className={`relative ${note?.color} p-6 rounded-lg shadow-md border border-gray-200 hover:shadow-xl  transition-transform duration-200 ease-in-out mb-4`}
                         ref={provided.innerRef}
                         {...provided.draggableProps}
                         {...provided.dragHandleProps}
                         onClick={() => handleNoteClick(note)}
                       >
+                        <AiFillPushpin
+                        size={24}
+                        className="absolute -right-3 -top-3 text-gray-600"
+                      />
                         <h3 className="font-bold">{note.title}</h3>
-                        <p className="text-gray-700 line-clamp-6 font-notefont text-xl">{note.content}</p>
+                        <p className="text-gray-700 text-xl">{note.content}</p>
                       </div>
                     )}
                   </Draggable>

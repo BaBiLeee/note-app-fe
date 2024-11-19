@@ -65,7 +65,7 @@ const UserDashboard = () => {
       const updatedUser = await updateUser({
         accessToken,
         id: selectedUser.id,
-        data: updatedData, // Sử dụng bản sao để đảm bảo dữ liệu chính xác
+        data: updatedData, 
       }).unwrap();
 
       toast.success("User updated successfully!");
@@ -78,12 +78,16 @@ const UserDashboard = () => {
   };
 
   const handleStatus = async (id) => {
-    const response = await updateStatus({ id, accessToken: accessToken });
+    try{
+      const response = await updateStatus({ id, accessToken: accessToken }).unwrap();
+      toast.success("User updated successfully!");
+      window.location.reload();
 
-    // Kiểm tra phản hồi API
-    if (response.error) {
-      throw new Error(response.error.data.message || "Failed to update user.");
+    } catch (error) {
+      toast.error("Failed to update status", error);
     }
+
+
   };
 
   const handleDeleteUser = async (id) => {
